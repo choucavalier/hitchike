@@ -29,12 +29,14 @@ class Comment(BaseModel):
 
 class Answer(BaseModel):
     comments = models.ManyToManyField(Comment, related_name='answer_comments')
+    validated = models.BooleanField(default=False)
 
 class Question(BaseModel, HitCountMixin):
     title = models.CharField('Question', max_length=140)
-    slug_title = models.SlugField(max_length=140)
+    slug_title = models.SlugField(max_length=140, unique=True)
     tags = TaggableManager()
     answers = models.ManyToManyField(Answer, related_name='question_answers')
+    answered = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generate slug_title if this is a newly created question

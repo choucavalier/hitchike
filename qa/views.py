@@ -1,4 +1,5 @@
 from django.http import Http404, HttpResponseRedirect
+from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -16,7 +17,9 @@ class QuestionListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(QuestionListView, self).get_context_data(**kwargs)
-        questions = Question.objects.select_related('user')
+        questions = Question.objects \
+            .annotate(answers_count=Count('answers')) \
+            .select_related('user')
         paginator = Paginator(questions, 15)
         page = self.request.GET.get('page')
         try:
@@ -64,4 +67,6 @@ class QuestionNewView(CreateView):
         obj = form.save(commit=False)
         obj.user = self.request.user
         obj.save()
-        return HttpResponseRedirect(reverse_lazy('question', obj.slug_title))
+        form.save_m2m()
+        return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={
+            'slug_title': obj.slug_title}))

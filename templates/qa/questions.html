@@ -1,39 +1,61 @@
 {% extends "subase.html" %}
 
+{% load humanize %}
+
 {% block scripts %}
 {{ block.super }}
 
 <script type="text/javascript"
         src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script type="text/javascript">MathJax.Hub.Config({"showMathMenu": false, "tex2jax":
-    {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
+<script type="text/javascript">MathJax.Hub.Config({"showMathMenu": true, "tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
 {% endblock scripts %}
 
 {% block subcontent %}
 
 {% if questions %}
 
+<table id="questions" border="0" cellspacing="0">
 {% for question in questions %}
-<div class="question" data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
-    <h3>
-        <a href="{% url 'qa:question' question.slug_title %}">
-            {{ question.title }}
-        </a>
-    </h3>
-    <span class="info">
-        <em class="date">{{ question.create_at }}</em>,
-        <span class="author"><em>from</em>
-            <strong>{{ question.user.full_name }}</strong></span>
-        <span class="tags">
-            {% for tag in question.tags.all %}
-            <span class="tag">{{ tag.name }}</span>
-            {% endfor %}
-        </span>
-        <span class="hits">{{ question.hit_count.hits }}</span>
-    </span>
-</div>
+<tr class="question" data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
+    <td class="counter">
+        <p class="count">{{ question.votes.count }}</p>
+        votes
+    </td>
+    <td class="counter">
+        <p class="count">{{ question.answers|length }}</p>
+        answers
+    </td>
+    <td class="counter">
+        <p class="count">{{ question.hit_count.hits }}</p>
+        views
+    </td>
+    <td class="content">
+        <h3 class="title">
+            <a href="{% url 'qa:question' question.slug_title %}">
+                {{ question.title }}
+            </a>
+        </h3>
+        <div class="bottom">
+            <span class="tags">
+                {% for tag in question.tags.all %}
+                <span class="tag">{{ tag.name }}</span>
+                {% endfor %}
+            </span>
+            <span class="info">
+                <span class="date">
+                    asked
+                    {{ question.create_at|naturaltime }},
+                </span>
+                <span class="author">
+                    <em>by</em>
+                    <strong>{{ question.user }}</strong>
+                </span>
+            </span>
+        </div>
+    </td>
+</tr>
 {% endfor %}
-
+</table>
 {% else %}
 It looks like no one asked any question... yet.
 {% endif %}
