@@ -1,0 +1,7 @@
+Django==1.9.2
+django-hitcount==1.2.1
+django-mathjax==0.0.5
+django-taggit==0.18.0
+django-vote==1.1.2
+hoedown==0.2.2
+Pygments==2.1.1
