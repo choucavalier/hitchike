@@ -8,8 +8,11 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from hitcount.models import HitCount
+from hitcount.views import HitCountMixin
+
 from qa.models import Question, Answer, Comment
-from qa.forms import QuestionNewForm
+from qa.forms import QuestionNewForm, QuestionUpdateForm
 
 class QuestionListView(TemplateView):
     model = Question
@@ -51,6 +54,9 @@ class QuestionView(TemplateView):
         except Question.DoesNotExist:
             raise Http404()
 
+        hit_count = HitCount.objects.get_for_object(question)
+        HitCountMixin.hit_count(self.request, hit_count)
+
         context['question'] = question
         return context
 
@@ -66,6 +72,30 @@ class QuestionNewView(CreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.user = self.request.user
+        obj.save()
+        form.save_m2m()
+        return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={
+            'slug_title': obj.slug_title}))
+
+class QuestionUpdateView(UpdateView):
+    model = Question
+    template_name = 'qa/update.html'
+    form_class = QuestionUpdateForm
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(QuestionNewView, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        obj = Question.objects.get(slug_name=self.kwargs['slug_name'])
+        return obj
+
+    def get_success_url(self):
+        return reverse_lazy('qa:question',
+                kwargs={'slug_name': self.object.slug_name})
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
         obj.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={

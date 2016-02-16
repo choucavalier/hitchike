@@ -134,7 +134,7 @@ header #menu li a.active, header #menu li a:hover {
 
 #content .question {
     padding: 4px 0;
-    margin-bottom: 4px;
+    border-bottom: 4px solid #000;
 }
 
 #content .question.draft {
@@ -197,6 +197,8 @@ header #menu li a.active, header #menu li a:hover {
 
 #content .question > .content > .bottom > .tags > .tag {
     text-transform: lowercase;
+    font-weight: 500;
+    color: #39739d;
 }
 
 .markup-container a {

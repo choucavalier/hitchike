@@ -10,3 +10,12 @@ class QuestionNewForm(forms.ModelForm):
                 'tags',
                 'content',
                 ]
+
+class QuestionUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = [
+                'title',
+                'tags',
+                'content',
+                ]

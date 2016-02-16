@@ -1,0 +1,38 @@
+{% extends "subase.html" %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript"
+        src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript">MathJax.Hub.Config({"showMathMenu": false, "tex2jax":
+    {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
+{% endblock scripts %}
+
+{% block page_title %}{{ question.title }}{% endblock page_title %}
+
+{% block subcontent %}
+
+<a href="{% url 'qa:questions' %}" class="btn">« All questions</a>
+
+{% if user.is_authenticated %}
+<a href="{% url 'qa:question' question.slug_title %}" class="btn">Edit</a>
+{% endif %}
+
+<question data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
+    <h3>{% if question.draft %}{draft} {% endif %}{{ question.title }}</h3>
+    <span class="info">
+        <em class="date">{{ question.create_at }}</em>,
+        <span class="place"><em>by</em>
+            <strong>{{ question.user }}</strong></span>
+        <span class="tags">
+            {% for tag in question.tags.all %}
+            <span class="tag">{{ tag.name }}</span>
+            {% endfor %}
+        </span>
+    </span>
+    <div class="content markup-container">
+        {{ question.content_html|safe }}
+    </div>
+</question>
+
+{% endblock subcontent %}

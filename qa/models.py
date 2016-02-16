@@ -37,6 +37,7 @@ class Question(BaseModel, HitCountMixin):
     tags = TaggableManager()
     answers = models.ManyToManyField(Answer, related_name='question_answers')
     answered = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generate slug_title if this is a newly created question
