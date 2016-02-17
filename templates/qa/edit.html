@@ -4,8 +4,15 @@
 {{ block.super }}
 <script type="text/javascript"
         src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script type="text/javascript">MathJax.Hub.Config({"showMathMenu": false, "tex2jax":
-    {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
+<script type="text/javascript">
+MathJax.Hub.Config({
+    "showMathMenu": false,
+    "tex2jax": {
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]]
+    }
+});
+</script>
+{{ form.media }}
 {% endblock scripts %}
 
 {% block page_title %}Edit a question{% endblock %}
@@ -20,10 +27,10 @@
 </ul>
 {% endif %}
 
-<form action="{% url 'qa:new' %}" method="post" accept-charset="utf-8">
+<form action="{% url 'qa:edit' object.slug_title %}" method="post" accept-charset="utf-8">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Edit" class="btn" />
+    <input type="submit" value="Save" class="btn" />
 </form>
 
 {% endblock subcontent %}

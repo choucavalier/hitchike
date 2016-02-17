@@ -13,7 +13,7 @@ from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
 
 from qa.models import Question, Answer, Comment
-from qa.forms import QuestionNewForm, QuestionUpdateForm
+from qa.forms import QuestionForm
 
 class QuestionListView(TemplateView):
     model = Question
@@ -64,7 +64,7 @@ class QuestionView(TemplateView):
 class QuestionNewView(CreateView):
     model = Question
     template_name = 'qa/new.html'
-    form_class = QuestionNewForm
+    form_class = QuestionForm
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -81,7 +81,7 @@ class QuestionNewView(CreateView):
 class QuestionUpdateView(UpdateView):
     model = Question
     template_name = 'qa/edit.html'
-    form_class = QuestionUpdateForm
+    form_class = QuestionForm
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

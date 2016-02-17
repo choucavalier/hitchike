@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'hitcount',
     'taggit',
     'vote',
+    'pagedown',
 
     # Apps
     'qa',
@@ -136,6 +137,9 @@ MATHJAX_CONFIG_DATA = {
     },
     "showMathMenu": False,
 }
+
+PAGEDOWN_WIDGET_TEMPLATE = 'qa/editor_widget.html'
+PAGEDOWN_WIDGET_CSS = ('css/editor_widget.css',)
 
 EMAIL_HOST           = 'smtp.too.gy'
 EMAIL_HOST_USER      = 'no-reply@too.gy'

@@ -1,8 +1,10 @@
 from django import forms
 
+from pagedown.widgets import PagedownWidget
+
 from qa.models import Question
 
-class QuestionNewForm(forms.ModelForm):
+class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = [
@@ -10,12 +12,6 @@ class QuestionNewForm(forms.ModelForm):
                 'tags',
                 'content',
                 ]
-
-class QuestionUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Question
-        fields = [
-                'title',
-                'tags',
-                'content',
-                ]
+        widgets = {
+            'content': PagedownWidget(attrs={}),
+        }

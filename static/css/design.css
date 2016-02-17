@@ -264,13 +264,13 @@ header #menu li a.active, header #menu li a:hover {
     border-right: normal none;
     border-width: normal;
     border-style: solid none none;
-    border-color: #7b869d -moz-use-text-color -moz-use-text-color;
+    border-color: #3d3d3d -moz-use-text-color -moz-use-text-color;
     -moz-border-top-colors: none;
     -moz-border-right-colors: none;
     -moz-border-bottom-colors: none;
     -moz-border-left-colors: none;
     border-image: none;
-    color: #293756;
+    color: #4d4d4d;
     text-align: center;
     margin: 20px 0;
 }
@@ -283,7 +283,7 @@ header #menu li a.active, header #menu li a:hover {
     font-size: 1em;
     padding: 0px 0.25em;
     color: rgb(100, 100, 100);
-    background: none repeat scroll 0% 0% #dfe3eb;
+    background: none repeat scroll 0% 0% #ffffff;
 }
 
 .markup-container pre .hll { background-color: #ffffcc }
