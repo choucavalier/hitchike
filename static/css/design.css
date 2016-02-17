@@ -294,6 +294,7 @@ header #menu li a.active, header #menu li a:hover {
     overflow-x: auto;
     padding: 10px 15px;
     word-wrap: normal;
+    font-size: 12px;
 }
 
 #content form {
