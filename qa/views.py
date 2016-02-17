@@ -80,20 +80,20 @@ class QuestionNewView(CreateView):
 
 class QuestionUpdateView(UpdateView):
     model = Question
-    template_name = 'qa/update.html'
+    template_name = 'qa/edit.html'
     form_class = QuestionUpdateForm
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(QuestionNewView, self).dispatch(*args, **kwargs)
+        return super(QuestionUpdateView, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
-        obj = Question.objects.get(slug_name=self.kwargs['slug_name'])
+        obj = Question.objects.get(slug_title=self.kwargs['slug_title'])
         return obj
 
     def get_success_url(self):
         return reverse_lazy('qa:question',
-                kwargs={'slug_name': self.object.slug_name})
+                kwargs={'slug_title': self.object.slug_title})
 
     def form_valid(self, form):
         obj = form.save(commit=False)

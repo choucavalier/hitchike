@@ -1,0 +1,30 @@
+{% extends "subase.html" %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript"
+        src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript">MathJax.Hub.Config({"showMathMenu": false, "tex2jax":
+    {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
+{% endblock scripts %}
+
+{% block page_title %}Edit a question{% endblock %}
+
+{% block subcontent %}
+
+{% if errors %}
+<ul>
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form action="{% url 'qa:new' %}" method="post" accept-charset="utf-8">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Edit" class="btn" />
+</form>
+
+{% endblock subcontent %}
+
