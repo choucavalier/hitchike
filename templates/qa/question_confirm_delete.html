@@ -1,0 +1,21 @@
+{% extends "subase.html" %}
+
+{% block page_title %}Delete question{% endblock page_title %}
+
+{% block subcontent %}
+
+{% if errors %}
+<ul>
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+    <p>Are you sure you want to delete "{{ object }}"?</p>
+    <input type="submit" value="Confirm" class="btn" />
+</form>
+
+{% endblock subcontent %}
+

@@ -3,9 +3,10 @@ from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from hitcount.models import HitCount
@@ -100,3 +101,16 @@ class QuestionUpdateView(UpdateView):
         form.save_m2m()
         return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={
             'slug_title': obj.slug_title}))
+
+class QuestionDeleteView(DeleteView):
+    model = Question
+    success_url = reverse_lazy('qa:questions')
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(QuestionDeleteView, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        obj = Question.objects.get(user=self.request.user,
+                                   slug_title=self.kwargs['slug_title'])
+        return obj

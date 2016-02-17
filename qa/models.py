@@ -45,5 +45,8 @@ class Question(BaseModel, HitCountMixin):
             self.slug_title = slugify(self.title)
         super(Question, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.title
+
     class Meta(BaseModel.Meta):
         ordering = ['-create_at']
