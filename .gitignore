@@ -65,4 +65,4 @@ tags
 *.swp
 *.sqlite3
 
-hitchike/local_settings.py
+hitchike/settings/local.py
