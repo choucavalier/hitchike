@@ -7,3 +7,4 @@ django-vote==1.1.2
 hoedown==0.2.2
 psycopg2==2.6.1
 Pygments==2.1.1
+django-pagedown==0.1.1

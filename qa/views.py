@@ -58,6 +58,12 @@ class QuestionView(TemplateView):
         hit_count = HitCount.objects.get_for_object(question)
         HitCountMixin.hit_count(self.request, hit_count)
 
+        if self.request.user.is_authenticated():
+            print("KO")
+            context['user_voted'] = question.votes.exists(self.request.user)
+        else:
+            context['user_voted'] = False
+
         context['question'] = question
         return context
 
@@ -114,3 +120,29 @@ class QuestionDeleteView(DeleteView):
         obj = Question.objects.get(user=self.request.user,
                                    slug_title=self.kwargs['slug_title'])
         return obj
+
+class VoteView(TemplateView):
+    model = Question
+    template_name = 'qa/question.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(VoteView, self).get_context_data(**kwargs)
+        try:
+
+            question = Question.objects.\
+                get(slug_title=kwargs['slug_title'])
+
+        except Question.DoesNotExist:
+            raise Http404()
+
+        user = self.request.user
+        if user.is_authenticated():
+            if question.votes.exists(user):
+                question.votes.down(user)
+            else:
+                question.votes.up(user)
+            context['question'] = question
+            context['user_voted'] = question.votes.exists(self.request.user)
+        else:
+            context['user_voted'] = False
+        return context

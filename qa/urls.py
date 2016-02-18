@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 from qa.views import QuestionListView, QuestionView, QuestionNewView, \
-    QuestionUpdateView, QuestionDeleteView
+    QuestionUpdateView, QuestionDeleteView, VoteView
 
 urlpatterns = [
     url(r'^$', QuestionListView.as_view(), name='questions'),
@@ -11,5 +11,7 @@ urlpatterns = [
         name='edit'),
     url(r'^delete/(?P<slug_title>[\w-]+)$', QuestionDeleteView.as_view(),
         name='delete'),
+    url(r'^vote/(?P<slug_title>[\w-]+)$', VoteView.as_view(),
+        name='vote')
     # url(r'^vote/(.+)$', VoteView.as_view(), name='vote'),
 ]

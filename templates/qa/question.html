@@ -24,11 +24,34 @@
 {% endif %}
 
 <question data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
+    {% if user.is_authenticated %}
+    <a href="{% url 'qa:vote' question.slug_title %}">
+        {% if user_voted %}
+            <div class="votes">
+                <span class="vote-count">{{ question.votes.count }}</span>
+            </div>
+        {% else %}
+            <div class="voted votes">
+                <span class="vote-count">{{ question.votes.count }}</span>
+            </div>
+            {% endif %}
+    </a>
+    {% else %}
+    <div class="voted votes">
+        <span class="vote-count">{{ question.votes.count }}</span>
+    </div>
+    {% endif %}
+
+
+
     <h3>{% if question.draft %}{draft} {% endif %}{{ question.title }}</h3>
     <span class="info">
         <em class="date">Asked {{ question.create_at|naturaltime }}</em>,
         <span class="place"><em>by</em>
             <strong>{{ question.user }}</strong></span>
+        <span class="viewcount">
+            <p class="count">viewed {{ question.hit_count.hits }} times</p>
+        </span>
         <span class="tags">
             {% for tag in question.tags.all %}
             <span class="tag">{{ tag.name }}</span>
