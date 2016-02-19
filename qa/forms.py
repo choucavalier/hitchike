@@ -13,7 +13,7 @@ class QuestionForm(forms.ModelForm):
                 'content',
                 ]
         widgets = {
-            'content': PagedownWidget(attrs={}),
+            'content': PagedownWidget(),
         }
 
 
@@ -22,5 +22,5 @@ class AnswerForm(forms.ModelForm):
         model = Answer
         fields = ['content']
         widgets = {
-            'content': PagedownWidget(attrs={}),
+            'content': PagedownWidget(),
         }

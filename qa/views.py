@@ -150,8 +150,17 @@ class QuestionDeleteView(DeleteView):
         return super(QuestionDeleteView, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
-        obj = Question.objects.get(user=self.request.user,
-                                   slug_title=self.kwargs['slug_title'])
+        try:
+            if self.request.user.is_staff \
+                    or self.request.user.is_superuser:
+                # If the user is an admin, no need to check whether the question
+                # belongs to the current user or not
+                obj = Question.objects.get(slug_title=self.kwargs['slug_title'])
+            else:
+                obj = Question.objects.get(user=self.request.user,
+                                           slug_title=self.kwargs['slug_title'])
+        except Question.DoesNotExist:
+            raise Http404()
         return obj
 
 
