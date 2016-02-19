@@ -1,4 +1,5 @@
 from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.db import IntegrityError
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.decorators import login_required
@@ -6,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
 
 
 from hitcount.models import HitCount
@@ -21,7 +23,7 @@ class QuestionListView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(QuestionListView, self).get_context_data(**kwargs)
         questions = Question.objects \
-            .annotate(answers_count=Count('answers')) \
+            .annotate(answers_count=Count('answer')) \
             .select_related('user')
         paginator = Paginator(questions, 15)
         page = self.request.GET.get('page')
@@ -34,71 +36,52 @@ class QuestionListView(TemplateView):
         context['questions'] = questions
         return context
 
-class QuestionView(TemplateView):
+class QuestionView(CreateView):
     model = Question
     template_name = 'qa/question.html'
+    form_class = AnswerForm
 
-    def get_context_data(self, **kwargs):
+    def dispatch(self, *args, **kwargs):
+        return super(QuestionView, self).dispatch(*args, **kwargs)
 
-        context = super(QuestionView, self).get_context_data(**kwargs)
-
+    def get_object(self, queryset=None):
         try:
-            question = Question.objects \
-                .select_related('user') \
-                .prefetch_related('answers',
-                                  'answers__user',
-                                  'answers__comments',
-                                  'answers__comments__user') \
-                .get(slug_title=kwargs['slug_title'])
-
+            obj = Question.objects.get(slug_title=self.kwargs['slug_title'])
         except Question.DoesNotExist:
             raise Http404()
+        return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(QuestionView, self).get_context_data(**kwargs)
+        question = self.get_object()
         hit_count = HitCount.objects.get_for_object(question)
         HitCountMixin.hit_count(self.request, hit_count)
-
         if self.request.user.is_authenticated():
             context['user_voted'] = not question.votes.exists(self.request.user)
         else:
             context['user_voted'] = False
 
         context['question'] = question
+        context['answers'] = sorted(question.answer_set.all(),
+                                    key=lambda answer: (answer.votes.count(), answer.create_at), reverse=True)
         return context
-
-class AnswerNewView(CreateView):
-    model = Answer
-    template_name = 'qa/answer.html'
-    form_class = AnswerForm
-
-    def get_context_data(self, **kwargs):
-        context = super(AnswerNewView, self).get_context_data(**kwargs)
-        context['question'] = self.question
-        return context
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        try:
-            question = Question.objects \
-                .select_related('user') \
-                .prefetch_related('answers',
-                                  'answers__user',
-                                  'answers__comments',
-                                  'answers__comments__user') \
-                .get(slug_title=kwargs['slug_title'])
-
-        except Question.DoesNotExist:
-            raise Http404()
-        self.question = question
-        return super(AnswerNewView, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
+        question = self.get_object()
         obj = form.save(commit=False)
         obj.user = self.request.user
-        obj.save()
+        obj.question = question
+        try:
+            obj.save()
+        except IntegrityError:
+            messages.error(self.request, 'You can\'t answer a question twice. '\
+                                         'Consider updating your previous answer.')
+            return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={
+                'slug_title': question.slug_title}))
         form.save_m2m()
-        self.question.answers.add(obj)
         return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={
-            'slug_title': self.question.slug_title}))
+            'slug_title': question.slug_title}))
+
 
 class QuestionNewView(CreateView):
     model = Question
@@ -182,3 +165,4 @@ def vote_question(request, **kwargs):
     else:
         return HttpResponse(-1)
     return HttpResponse(question.votes.count())
+

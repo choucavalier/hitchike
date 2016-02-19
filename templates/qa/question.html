@@ -4,32 +4,23 @@
 
 {% block scripts %}
 {{ block.super }}
+{% load static %}
 <script type="text/javascript"
         src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/javascript"
-        src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+        src="{% static 'js/jquery-1.12.0.min.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-
-    $('.votes').click(function(event){
-        $.get('{% url "qa:vote" question.slug_title %}', function(data){
-            if (data != -1) {
-                changeVoteState(event.target.id);
-                $('#' + event.target.id + '-count').html(data);
-            }
-            })
-        })
+    $('.votes').click(function() {
+    var elt = this;
+    $.get('{% url "qa:vote" question.slug_title %}', function(data) {
+        if (data != -1) {
+                $(elt).toggleClass('voted');
+                $(elt).find('.vote-count').html(data);
+        }
+    })
     });
-
-function changeVoteState(id){
-    var name = document.getElementById(id);
-    var currentClass = name.className;
-    if (currentClass == "voted votes") {
-        name.className = "votes";
-    } else {
-        name.className = "voted votes";
-    }
-}
+});
 </script>
 <script type="text/javascript">MathJax.Hub.Config({"showMathMenu": false, "tex2jax":
     {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
@@ -44,10 +35,17 @@ function changeVoteState(id){
 
 {% if user.is_authenticated %}
 <a href="{% url 'qa:edit' question.slug_title %}" class="btn">Edit</a>
-<a href="{% url 'qa:answer' question.slug_title %}" class="btn">Answer</a>
 {% if user.is_superuser or question.user == user %}
 <a href="{% url 'qa:delete' question.slug_title %}" class="btn">Delete</a>
 {% endif %}
+{% endif %}
+
+{% if messages %}
+<div>
+{% for error in messages %}
+    <span class="error-btn">{{ error }}</span>
+{% endfor %}
+</div>
 {% endif %}
 
 <question data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
@@ -91,7 +89,7 @@ function changeVoteState(id){
     </div>
 </question>
 
-{% for answer in question.answers.all %}
+{% for answer in answers %}
 <answer>
     <span class="info">
         <em class="date">Answered {{ answer.create_at|naturaltime }}</em>,
@@ -102,6 +100,17 @@ function changeVoteState(id){
         {{ answer.content_html|safe }}
     </div>
 </answer>
-{% endfor %}
 
+
+{% endfor %}
+{% if user.is_authenticated %}
+<h3>Your Answer</h3>
+<form action="{% url 'qa:answer' question.slug_title %}" method="post" accept-charset="utf-8">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Post Your Answer" class="btn" />
+</form>
+{{ form.media }}
+{% endif %}
 {% endblock subcontent %}
+

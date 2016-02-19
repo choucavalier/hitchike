@@ -1,4 +1,4 @@
-{% extends "subase.html" %}
+{% extends "question.html" %}
 
 {% block scripts %}
 {{ block.super }}
@@ -20,26 +20,6 @@
     {% endfor %}
 </ul>
 {% endif %}
-<question data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
-
-    <h3>{% if question.draft %}{draft} {% endif %}{{ question.title }}</h3>
-    <span class="info">
-        <em class="date">Asked {{ question.create_at }}</em>,
-        <span class="place"><em>by</em>
-            <strong>{{ question.user }}</strong></span>
-        <span class="viewcount">
-            <p class="count">viewed {{ question.hit_count.hits }} times</p>
-        </span>
-        <span class="tags">
-            {% for tag in question.tags.all %}
-            <span class="tag">{{ tag.name }}</span>
-            {% endfor %}
-        </span>
-    </span>
-    <div class="content markup-container">
-        {{ question.content_html|safe }}
-    </div>
-</question>
 
 <form action="{% url 'qa:answer' question.slug_title %}" method="post" accept-charset="utf-8">
     {% csrf_token %}
