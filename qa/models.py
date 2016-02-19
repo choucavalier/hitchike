@@ -31,6 +31,9 @@ class Answer(BaseModel):
     comments = models.ManyToManyField(Comment, related_name='answer_comments')
     validated = models.BooleanField(default=False)
 
+    class Meta(BaseModel.Meta):
+        ordering = ['-create_at']
+
 class Question(BaseModel, HitCountMixin):
     title = models.CharField('Question', max_length=140)
     slug_title = models.SlugField(max_length=140, unique=True)

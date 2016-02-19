@@ -1,19 +1,18 @@
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.db.models import Count
-from django.core.urlresolvers import reverse_lazy, reverse
-from django.shortcuts import render
+from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+
 from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
 
 from qa.models import Question, Answer, Comment
-from qa.forms import QuestionForm
+from qa.forms import QuestionForm, AnswerForm
 
 class QuestionListView(TemplateView):
     model = Question
@@ -59,13 +58,47 @@ class QuestionView(TemplateView):
         HitCountMixin.hit_count(self.request, hit_count)
 
         if self.request.user.is_authenticated():
-            print("KO")
-            context['user_voted'] = question.votes.exists(self.request.user)
+            context['user_voted'] = not question.votes.exists(self.request.user)
         else:
             context['user_voted'] = False
 
         context['question'] = question
         return context
+
+class AnswerNewView(CreateView):
+    model = Answer
+    template_name = 'qa/answer.html'
+    form_class = AnswerForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AnswerNewView, self).get_context_data(**kwargs)
+        context['question'] = self.question
+        return context
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        try:
+            question = Question.objects \
+                .select_related('user') \
+                .prefetch_related('answers',
+                                  'answers__user',
+                                  'answers__comments',
+                                  'answers__comments__user') \
+                .get(slug_title=kwargs['slug_title'])
+
+        except Question.DoesNotExist:
+            raise Http404()
+        self.question = question
+        return super(AnswerNewView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        obj.save()
+        form.save_m2m()
+        self.question.answers.add(obj)
+        return HttpResponseRedirect(reverse_lazy('qa:question', kwargs={
+            'slug_title': self.question.slug_title}))
 
 class QuestionNewView(CreateView):
     model = Question
@@ -121,28 +154,22 @@ class QuestionDeleteView(DeleteView):
                                    slug_title=self.kwargs['slug_title'])
         return obj
 
-class VoteView(TemplateView):
-    model = Question
-    template_name = 'qa/question.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(VoteView, self).get_context_data(**kwargs)
-        try:
 
-            question = Question.objects.\
-                get(slug_title=kwargs['slug_title'])
+@login_required
+def vote_question(request, **kwargs):
+    try:
+        question = Question.objects.\
+            get(slug_title=kwargs['slug_title'])
+    except Question.DoesNotExist:
+        raise Http404()
 
-        except Question.DoesNotExist:
-            raise Http404()
-
-        user = self.request.user
-        if user.is_authenticated():
-            if question.votes.exists(user):
-                question.votes.down(user)
-            else:
-                question.votes.up(user)
-            context['question'] = question
-            context['user_voted'] = question.votes.exists(self.request.user)
+    user = request.user
+    if question.user != user:
+        if question.votes.exists(user):
+            question.votes.down(user)
         else:
-            context['user_voted'] = False
-        return context
+            question.votes.up(user)
+    else:
+        return HttpResponse(-1)
+    return HttpResponse(question.votes.count())

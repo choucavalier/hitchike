@@ -6,8 +6,34 @@
 {{ block.super }}
 <script type="text/javascript"
         src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript"
+        src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    $('.votes').click(function(event){
+        $.get('{% url "qa:vote" question.slug_title %}', function(data){
+            if (data != -1) {
+                changeVoteState(event.target.id);
+                $('#' + event.target.id + '-count').html(data);
+            }
+            })
+        })
+    });
+
+function changeVoteState(id){
+    var name = document.getElementById(id);
+    var currentClass = name.className;
+    if (currentClass == "voted votes") {
+        name.className = "votes";
+    } else {
+        name.className = "voted votes";
+    }
+}
+</script>
 <script type="text/javascript">MathJax.Hub.Config({"showMathMenu": false, "tex2jax":
     {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}});</script>
+
 {% endblock scripts %}
 
 {% block page_title %}{{ question.title }}{% endblock page_title %}
@@ -18,6 +44,7 @@
 
 {% if user.is_authenticated %}
 <a href="{% url 'qa:edit' question.slug_title %}" class="btn">Edit</a>
+<a href="{% url 'qa:answer' question.slug_title %}" class="btn">Answer</a>
 {% if user.is_superuser or question.user == user %}
 <a href="{% url 'qa:delete' question.slug_title %}" class="btn">Delete</a>
 {% endif %}
@@ -25,17 +52,18 @@
 
 <question data="{% for tag in question.tags.all %}{{ tag.pk }} {% endfor %}">
     {% if user.is_authenticated %}
-    <a href="{% url 'qa:vote' question.slug_title %}">
+
         {% if user_voted %}
-            <div class="votes">
-                <span class="vote-count">{{ question.votes.count }}</span>
-            </div>
+        <button id="qt-vt" class="voted votes" type="button">
+            <span id='qt-vt-count' class="vote-count">{{ question.votes.count }}</span>
+        </button>
+
         {% else %}
-            <div class="voted votes">
-                <span class="vote-count">{{ question.votes.count }}</span>
-            </div>
-            {% endif %}
-    </a>
+        <button id="qt-vt" class="votes" type="button">
+            <span id='qt-vt-count' class="vote-count">{{ question.votes.count }}</span>
+        </button>
+        {% endif %}
+
     {% else %}
     <div class="voted votes">
         <span class="vote-count">{{ question.votes.count }}</span>
@@ -62,5 +90,18 @@
         {{ question.content_html|safe }}
     </div>
 </question>
+
+{% for answer in question.answers.all %}
+<answer>
+    <span class="info">
+        <em class="date">Answered {{ answer.create_at|naturaltime }}</em>,
+        <span class="place"><em>by</em>
+            <strong>{{ answer.user }}</strong></span>
+    </span>
+    <div class="content markup-container">
+        {{ answer.content_html|safe }}
+    </div>
+</answer>
+{% endfor %}
 
 {% endblock subcontent %}
