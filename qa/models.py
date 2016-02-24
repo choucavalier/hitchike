@@ -31,7 +31,7 @@ class Question(BaseModel, HitCountMixin):
     slug_title = models.SlugField(max_length=140, unique=True)
     tags = TaggableManager()
     answered = models.BooleanField(default=False)
-    deleted = models.BooleanField(default=False)
+    comments = models.ManyToManyField(Comment, related_name='question_comments')
 
     def save(self, *args, **kwargs):
         # Generate slug_title if this is a newly created question
@@ -50,6 +50,3 @@ class Answer(BaseModel):
     comments = models.ManyToManyField(Comment, related_name='answer_comments')
     validated = models.BooleanField(default=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('user', 'question',)
