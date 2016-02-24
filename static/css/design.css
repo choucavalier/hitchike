@@ -312,7 +312,7 @@ header #menu li a.active, header #menu li a:hover {
     padding-left: 2px;
 }
 
-#content input[type=text], textarea {
+#content input[type=text], input[type=email], input[type=password], textarea {
     display: block;
     padding: 8px 10px;
     font-size: 14px;
@@ -326,7 +326,8 @@ header #menu li a.active, header #menu li a:hover {
     font-size: 12px;
 }
 
-#content input[type=text]:focus, textarea:focus {
+#content input[type=text]:focus, input[type=email]:focus,
+         input[type=password]:focus, textarea:focus {
     border-color: #0077cc;
     color: #444;
 }

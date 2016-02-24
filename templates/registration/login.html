@@ -16,7 +16,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block branding %}
-<h1 id="site-name"><a href="{% url 'login' %}">Q&A Data Science Log in</a></h1>
+<h1 id="site-name"><a href="{% url 'django.contrib.auth.views.login' %}">Q&A Data Science Log in</a></h1>
 {% endblock %}
 
 {% block content %}
@@ -31,6 +31,7 @@
 <p class="errornote">
     {{ error }}
 </p>
+
 {% endfor %}
 {% endif %}
 

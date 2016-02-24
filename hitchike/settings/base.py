@@ -121,6 +121,8 @@ USE_TZ = True
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+# REGISTRATION
+ACCOUNT_ACTIVATION_DAYS = 7
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -146,16 +148,4 @@ MATHJAX_CONFIG_DATA = {
 PAGEDOWN_WIDGET_TEMPLATE = 'qa/editor_widget.html'
 PAGEDOWN_WIDGET_CSS = ('css/editor_widget.css',)
 
-EMAIL_HOST           = 'smtp.too.gy'
-EMAIL_HOST_USER      = 'no-reply@too.gy'
-EMAIL_HOST_PASSWORD  = 'password'
-EMAIL_PORT           = 587
-EMAIL_SUBJECT_PREFIX = '[QA]'
-EMAIL_USE_TLS        = True
-DEFAULT_FROM_EMAIL   = 'no-reply@too.gy'
-
-if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
-    try:
-        from local_settings import *  # noqa
-    except ImportError:
-        pass
+ALLOWED_DOMAINS = ['epita.fr', 'lrde.epita.fr', 'lse.epita.fr']
